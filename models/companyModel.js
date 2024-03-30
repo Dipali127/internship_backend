@@ -1,16 +1,18 @@
 const mongoose = require('mongoose');
 
 const companySchema = new mongoose.Schema({
+    employerID:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    },
     companyName:{
         type:String,
         required:true,
     },
-
     aboutCompany:{
         type:String,
         required:true
     },
-
     location:{
         type:String,
         required:true
