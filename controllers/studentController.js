@@ -2,17 +2,52 @@ const studentModel = require('../models/studentModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 require('dotenv').config({path:'../../.env'});
+const validation = require('../validator/validation');
 
 //register studentDetails:
 const registerStudent = async function(req,res){
     try{
         const data = req.body;
+        //if student doesnt send data 
+        if(!validation.isEmpty(data)){
+            return res.status(400).send({status:false,message:"Provide details for registration"});
+        }
         //destructuring request body data which are mandatory at the time of registration
         const {name,email,password,mobileNumber} = data;
-        if(!name || !email || !password || !mobileNumber){
-            return res.status(400).send({status:false,message:"Please provide all details for registration"})
+
+        //if student forgot to send any of details as well as validate the provided details are correct
+        if(!validation.checkString(name)){
+            return res.status(400).send({status:false,message:"studentName is required"})
         }
- 
+
+        if(!validation.checkName(name)){
+            return res.status(400).send({status:false,message:"Invalid name"})
+        }
+
+        if(!validation.checkString(email)){
+            return res.status(400).send({status:false,message:"email is required"});
+        }
+
+        if(!validation.checkEmail(email)){
+            return res.status(400).send({status:false,message:"Invalid email"})
+        }
+
+        if(!validation.checkString(password)){
+            return res.status(400).send({status:false,message:"password is required"});
+        }
+
+        if(!validation.checkPassword(password)){
+            return res.status(400).send({status:false,message:"Invalid password"});
+        }
+
+        if(!validation.checkString(mobileNumber)){
+            return res.status(400).send({status:false,message:"mobileNumber is required"});
+        }
+
+        if(!validation.checkPassword(password)){
+            return res.status(400).send({status:false,message:"Invalid password"});
+        }
+       
         //if provided email already present in database
         const existingEmail = await studentModel.findOne({email:email});
         if(existingEmail){
@@ -40,17 +75,29 @@ const registerStudent = async function(req,res){
 const studentLogin = async function(req,res){
     try{
         const data = req.body;
+        //if student doesnt send data 
+        if(!validation.isEmpty(data)){
+            return res.status(400).send({status:false,message:"Provide details for registration"});
+        }
+
         //destructuring email and password from request body to login student
         const {email,password} = data;
 
-        if(!email){
+        if(!validation.checkString(email)){
             return res.status(400).send({status:false,message:"Provide email for login"})
         }
 
-        if(!password){
-            return res.status(400).send({status:false,message:"Provide password for login"})
+        if(!validation.checkEmail(email)){
+            return res.status(400).send({status:false,message:"Invalid email"});
         }
 
+        if(!validation.checkString(password)){
+            return res.status(400).send({status:false,message:"Provide password for login"});
+        }
+        
+        if(!validation.checkPassword(password)){
+            return res.status(400).send({status:false,message:"Invalid password"});
+        }
         //if provided email already present in database
         const isemailExist = await studentModel.findOne({email:email});
         if(!isemailExist){
@@ -67,7 +114,7 @@ const studentLogin = async function(req,res){
 
        //Generate token for student
        const token = jwt.sign({
-        studentID:isemailExist._id,
+        studentID:isemailExist._id.toString(),
         author:"dipali"
        }, process.env.secretKey,{expiresIn: "2min"})
 
@@ -80,6 +127,18 @@ const studentLogin = async function(req,res){
 const updateStudentdetails = async function(req,res){
     try{
         const studentId = req.params._id;
+        const isExiststudent = await studentModel.findById(studentId);
+        if(!isExiststudent){
+            return res.status(400).send({status:false,message:"Student not found"});
+        }
+
+        
+        const loggedInStudent = req.decodedToken.studentID;
+
+        if(studentId != loggedInStudent){
+            return res.status(403).send({status:false,message:"Unauthorized to update student details"});
+        }
+
         const data = req.body;
         const {DOB,collegeName,yearOfPassout,areaOfInterest,address,country,state,city} = data;
 
