@@ -26,6 +26,17 @@
 // The bracket notation ([]) allows accessing header field values 
 //containing special characters, such as hyphens or spaces, which cannot be accessed using dot notation.
 
+// In the jsonwebtoken library for Node.js, there is indeed an error class called ExpiredJwtError which is used
+// to represent errors related to expired JWT tokens.
+
+// When a JWT token expires and you verify it using jwt.verify(), the library will throw an instance of 
+//ExpiredJwtError to indicate that the token has expired.
+
+// So, when you check for jwt.TokenExpiredError, you're essentially checking for instances of ExpiredJwtError,
+// as jwt.TokenExpiredError is just a shorthand reference to the specific error class for token expiration provided by the jsonwebtoken library.
+
+
+
 const jwt = require('jsonwebtoken');
 require('dotenv').config({path:'../../.env'})
 
@@ -45,18 +56,19 @@ const authentication = async function(req, res, next) {
         const newToken = finalToken[1];
 
         // Verify the token
-        jwt.verify(newToken, process.env.secretKey, (error, decodedToken) => {
+        jwt.verify(newToken, process.env.secretKey, function (error, decodedToken) {
             if (error) {
-                // Handle token verification errors
-                const message = (error.message === "TokenExpiredError") ? "Token expired. Please login again" : "Invalid token";
-                return res.status(400).send({ status: false, message: message });
+                // Check for token expiration
+                if (error instanceof jwt.TokenExpiredError) {
+                    return res.status(400).send({ status: false, message: "Token expired, please login again" });
+                }
+                // Handle other errors
+                return res.status(400).send({ status: false, message: "Invalid token" });
             } else {
-                // If token is valid, attach the decoded token to the request object
                 req.decodedToken = decodedToken;
                 next(); // Proceed to the next middleware or route handler
             }
         });
-
     } catch (error) {
         // Handle other errors
         return res.status(503).send({ status: false, message: error.message });

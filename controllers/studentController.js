@@ -16,7 +16,7 @@ const registerStudent = async function(req,res){
         const {name,email,password,mobileNumber} = data;
 
         //if student forgot to send any of details as well as validate the provided details are correct
-        if(!validation.checkString(name)){
+        if(!validation.checkData(name)){
             return res.status(400).send({status:false,message:"studentName is required"})
         }
 
@@ -24,7 +24,7 @@ const registerStudent = async function(req,res){
             return res.status(400).send({status:false,message:"Invalid name"})
         }
 
-        if(!validation.checkString(email)){
+        if(!validation.checkData(email)){
             return res.status(400).send({status:false,message:"email is required"});
         }
 
@@ -32,7 +32,7 @@ const registerStudent = async function(req,res){
             return res.status(400).send({status:false,message:"Invalid email"})
         }
 
-        if(!validation.checkString(password)){
+        if(!validation.checkData(password)){
             return res.status(400).send({status:false,message:"password is required"});
         }
 
@@ -40,12 +40,8 @@ const registerStudent = async function(req,res){
             return res.status(400).send({status:false,message:"Invalid password"});
         }
 
-        if(!validation.checkString(mobileNumber)){
+        if(!validation.checkData(mobileNumber)){
             return res.status(400).send({status:false,message:"mobileNumber is required"});
-        }
-
-        if(!validation.checkPassword(password)){
-            return res.status(400).send({status:false,message:"Invalid password"});
         }
        
         //if provided email already present in database
@@ -56,6 +52,16 @@ const registerStudent = async function(req,res){
 
         //hashed password
        const encryptPassword = await bcrypt.hash(password, 10)
+
+       //unique mobile number
+       const uniqueMobile = await studentModel.findOne({mobileNumber:mobileNumber});
+       if(uniqueMobile){
+        return res.status(409).send({status:false,message:"Provided mobile number already exist"});
+       }
+
+       if(!validation.checkMobile(mobileNumber)){
+        return res.status(400).send({status:false,message:"Invalid mobileNumber"});
+       }
 
         const newDetails = {
             name:name,
@@ -83,7 +89,7 @@ const studentLogin = async function(req,res){
         //destructuring email and password from request body to login student
         const {email,password} = data;
 
-        if(!validation.checkString(email)){
+        if(!validation.checkData(email)){
             return res.status(400).send({status:false,message:"Provide email for login"})
         }
 
@@ -91,7 +97,7 @@ const studentLogin = async function(req,res){
             return res.status(400).send({status:false,message:"Invalid email"});
         }
 
-        if(!validation.checkString(password)){
+        if(!validation.checkData(password)){
             return res.status(400).send({status:false,message:"Provide password for login"});
         }
         
@@ -105,6 +111,7 @@ const studentLogin = async function(req,res){
         }
 
        //compare hassedPassword with the student provided password
+       //if password valid then it return boolean value
        const comparePassword = await bcrypt.compare(password,isemailExist.password);
 
        //If password don't match
@@ -116,7 +123,7 @@ const studentLogin = async function(req,res){
        const token = jwt.sign({
         studentID:isemailExist._id.toString(),
         author:"dipali"
-       }, process.env.secretKey,{expiresIn: "2min"})
+       }, process.env.secretKey,{expiresIn: "1min"})
 
        return res.status(200).send({status:true,message:"student login succesfully",token:token});
     }catch(error){
@@ -127,8 +134,12 @@ const studentLogin = async function(req,res){
 const updateStudentdetails = async function(req,res){
     try{
         const studentId = req.params._id;
+        if(!validation.checkObjectId(studentId)){
+            return res.status(400).send({status:false,message:"Invalid studentId"});
+        }
         const isExiststudent = await studentModel.findById(studentId);
-        if(!isExiststudent){
+        //if provided studentId student not exist
+        if(!validation.isEmpty(isExiststudent)){
             return res.status(400).send({status:false,message:"Student not found"});
         }
 
@@ -140,7 +151,41 @@ const updateStudentdetails = async function(req,res){
         }
 
         const data = req.body;
+        if(!validation.isEmpty(data)){
+            return res.status(400).send({status:false,message:"Provide data to update/edit details"})
+        }
         const {DOB,collegeName,yearOfPassout,areaOfInterest,address,country,state,city} = data;
+        
+        if(!validation.checkData(DOB)){
+            return res.status(400).send({status:false,message:"DOB is required"});
+        }
+        if(!validation.checkData(collegeName)){
+            return res.status(400).send({status:false,message:"collegeName is required"});
+        }
+
+        if(!validation.checkData(yearOfPassout)){
+            return res.status(400).send({status:false,message:"yearOfPassout is required"});
+        }
+
+        if(!validation.checkData(areaOfInterest)){
+            return res.status(400).send({status:false,message:"areaOfInterest is required"});
+        }
+
+        if(!validation.checkData(address)){
+            return res.status(400).send({status:false,message:"address is required"});
+        }
+
+        if(!validation.checkData(country)){
+            return res.status(400).send({status:false,message:"country is required"});
+        }
+
+        if(!validation.checkData(state)){
+            return res.status(400).send({status:false,message:"state is required"});
+        }
+
+        if(!validation.checkData(city)){
+            return res.status(400).send({status:false,message:"city is required"});
+        }
 
         const additionalData = {
             DOB,
