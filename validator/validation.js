@@ -7,8 +7,8 @@ const isEmpty = (data) => {return Object.keys(data).length>0};
 //Checks if a value is not empty or is a string
 const checkData = (data) => {return data.length>0 || typeof(data) === String};
 
-//Validates a name to ensure it contains only letters 
-const checkName = (name) => {return /^[A-Za-z]+$/.test(name)};
+//Validates a name to ensure it contains only letters and space is allowed
+const checkName = (name) => /^[A-Za-z\s]+$/.test(name);
 
 // Validates an email address using a regular expression
 const checkEmail = (email) => {return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)};
@@ -22,8 +22,19 @@ const checkPassword = (password) =>
  // (any digit from 0 to 9) with a total length of 10 digits.
 const checkMobile = (mobileNumber) => {return /^[6-9]\d{9}$/.test(mobileNumber)}
 
+//Validate input data consists only of numbers.
+const validateInput = (input) => /^[0-9a-zA-Z\s]+$/.test(input);
+
+
+//Validate stipend format includes numbers, commas for thousands separators,
+// and a minus symbol for the range.
+const validateSalaryFormat = (input) => {
+    return /^\d{1,}(?:-\d{1,})?$/.test(input);
+};
+
 //Validates a MongoDB ObjectId using mongoose.isValidObjectId().
 const checkObjectId = (id) => { return mongoose.isValidObjectId(id); }
 
-module.exports = {isEmpty,checkData,checkName,checkEmail,checkPassword,checkMobile,checkObjectId}
+module.exports = {isEmpty,checkData,checkName,checkEmail,checkPassword,validateInput,
+    checkMobile,validateSalaryFormat,checkObjectId}
 
