@@ -19,7 +19,7 @@ const internshipSchema = new mongoose.Schema({
         default: "wfo"
     },
     skillsRequired: {
-        type: [String], // Assuming multiple skills can be required
+        type: String, 
         required: true
     },
     eligibility: {

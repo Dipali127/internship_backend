@@ -3,6 +3,7 @@ const router = express.Router();
 const studentController = require('../controllers/studentController')
 const companyController = require('../controllers/companyController');
 const internshipController = require('../controllers/internshipController');
+const applicationController = require('../controllers/applicationController');
 const jwt = require('../middleware/auth')
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>student>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register student
@@ -13,6 +14,8 @@ router.post('/loginStudent', studentController.studentLogin);
 router.put('/update/:_id', jwt.authentication,studentController.updateStudentdetails)
 //get Internship
 router.get('/getIntership', studentController.getInternship);
+//apply to internship
+router.post('/apply/:id',jwt.authentication, applicationController.applyInternship)
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>company>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register company
 router.post('/registerCompany', companyController.registerCompany)

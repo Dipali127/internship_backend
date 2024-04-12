@@ -2,24 +2,25 @@ const mongoose = require('mongoose');
 const objectId = mongoose.Schema.Types.ObjectId;
 
 const applicationSchema = new mongoose.Schema({
-    studentId:{
-        type:objectId,
-        ref:'User',
-        required:true
+    studentId: {
+        type: objectId,
+        ref: 'User', // Reference to the User model (assuming student is a user)
+        required: true
     },
-    internshipId:{
-        type:objectId,
-        ref:'Internship',
-        required:true
+    internshipId: {
+        type: objectId,
+        ref: 'Internship', // Reference to the Internship model
+        required: true
     },
-    resume:{
-        type:String
+    resume: {
+        type: String,
+        required: true
     },
-    status:{
-        type:String,
-        enum:["pending","rejected","accepted"],
-        default:"pending"
+    status: {
+        type: String,
+        enum: ["pending", "rejected", "accepted"],
+        default: "pending"
     }
-},{timestamps:true});
+}, { timestamps: true });
 
-module.exports = mongoose.model('Application',applicationSchema);
+module.exports = mongoose.model('Application', applicationSchema);

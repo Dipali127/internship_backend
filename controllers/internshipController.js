@@ -68,19 +68,23 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Category is required" });
         }
 
-        const validCategory = [
-            'Web Development',
-            'Mobile Development',
-            'Data Science',
-            'Cybersecurity',
-            'DevOps and Cloud Computing',
-            'UI/UX Design',
-            'Content Writing'
-        ]
+        const validCategory = {
+            'Web Development': ['Frontend Developer', 'Backend Developer', 'full stack Developer'],
+            'Mobile Development': ['Mobile App Developer', 'iOS Developer', 'Android Developer'],
+            'Data Science': ['Data Scientist', 'Data Analyst', 'Machine Learning Engineer', 'Data Engineer'],
+            'Cybersecurity': ['Security Analyst', 'Security Engineer'],
+            'DevOps and Cloud Computing': ['Cloud Architect', 'DevSecOps Engineer', 'Cloud Security Engineer'],
+            'UI/UX Design': ['UI Developer/Frontend Developer', 'UX Developer', 'Visual Designer'],
+            'Content Writing': ['Content Writer (Technical Content)', 'Technical Writer', 'SEO Specialist']
+        }
 
-        if (!validCategory.includes(category)) {
+        if (!validCategory.hasOwnProperty(category)) {
             return res.status(400).send({ status: false, message: "Invalid category" });
         }
+
+        //here, we fetch all the position in array which are under provided category by company
+        const positionsForCategory = validCategory[category];
+
         if (!validation.checkData(position)) {
             return res.status(400).send({ status: false, message: "Position is required" });
         }
@@ -92,53 +96,13 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Position already exist" });
         }
 
-        //Only those positions are included in internship website
-        const includedPositions = [
-            'Frontend Developer',
-            'Backend Developer',
-            'full stack Developer',
-            'Mobile App Developer',
-            'iOS Developer',
-            'Android Developer',
-            'Cross-Platform Developer',
-            'Mobile QA/Test Engineer',
-            'Mobile Product Manager',
-            'Data Scientist',
-            'Data Analyst',
-            'Machine Learning Engineer',
-            'Data Engineer',
-            'Business Intelligence (BI) Analyst',
-            'Data Architect',
-            'Security Analyst',
-            'Security Engineer',
-            'DevOps Engineer',
-            'Cloud Engineer',
-            'Cloud Architect',
-            'DevSecOps Engineer',
-            'Cloud Security Engineer',
-            'UI Developer/Frontend Developer',
-            'UX Developer',
-            'Visual Designer',
-            'UI Developer/Frontend Developer',
-            'Content Writer (Technical Content)',
-            'Technical Writer',
-            'SEO Specialist',
-            'Content Strategist',
-        ]
-
-        const checkPosition = includedPositions.includes(position)
-
-        if (!checkPosition) {
-            return res.status(400).send({ status: false, message: "Invalid position" })
+        if (!positionsForCategory.includes(position)) {
+            return res.status(400).send({ status: false, message: "Position is not valid for the selected category" })
         }
 
         if (!validation.checkData(skillsRequired)) {
-            return res.status(400).send({ status: false, message: "skillsReuired is required" });
+            return res.status(400).send({ status: false, message: "skillsRequired is required" });
         }
-
-        //skills can be multiple , so its better to collect them in an array
-        // Assuming skillsRequired coming from req.body contains the comma-separated string of skills
-        const skillsRequirements = skillsRequired.split(',').map((skills) => skills.trim())
 
         if (!validation.checkData(eligibility)) {
             return res.status(400).send({ status: false, message: "eligibility is required" });
@@ -262,7 +226,7 @@ const postInternship = async function (req, res) {
             category,
             position,
             internshipType,
-            skillsRequired: skillsRequirements,
+            skillsRequired,
             eligibility,
             duration,
             location,
@@ -304,9 +268,6 @@ const postInternship = async function (req, res) {
 const updateInternship = async function (req, res) {
     try {
         const internshipId = req.params._id;
-        if (!validation.checkObjectId(internshipId)) {
-            return res.status(400).send({ status: false, message: "Invalid internshipId" })
-        }
 
         const isExistInternship = await internshipModel.findById(internshipId);
         if (!isExistInternship) {
