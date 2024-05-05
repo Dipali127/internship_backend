@@ -1,8 +1,8 @@
-const companyModel = require('../models/companyModel');
+const companyModel = require('../models/companyModel.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 require('dotenv').config({ path: '../../.env' });
-const validation = require('../validator/validation');
+const validation = require('../validator/validation.js');
 
 
 //company registration and login typically refer to the process where an authorized representative of the company, 
@@ -115,7 +115,7 @@ const companyLogin = async function (req, res) {
             companyID: isEmailExist._id.toString(),
             user: "company"
         }, process.env.secretKey, { expiresIn: "1h" });
-       
+
         // Set the token in the response header
         res.set('Authorization', `Bearer ${token}`);
 

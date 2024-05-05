@@ -13,9 +13,9 @@ router.post('/loginStudent', studentController.studentLogin);
 //update student details
 router.put('/update/:_id', jwt.authentication,studentController.updateStudentdetails)
 //get Internship
-router.get('/getIntership', studentController.getInternship);
+router.get('/getIntership', jwt.authentication,studentController.getInternship);
 //apply to internship
-router.post('/apply/:id',jwt.authentication, applicationController.applyInternship)
+router.post('/apply/:_id',jwt.authentication, applicationController.applyInternship)
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>company>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register company
 router.post('/registerCompany', companyController.registerCompany)

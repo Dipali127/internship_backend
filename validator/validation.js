@@ -7,7 +7,7 @@ const isEmpty = (data) => {return Object.keys(data).length>0};
 //Checks if a value is not empty or is a string
 const checkData = (data) => {return data.length>0 || typeof(data) === String};
 
-//Validates a name to ensure it contains only letters and space is allowed
+//Validates a name to ensure it contains only letters(small & capital) and space is allowed
 const checkName = (name) => /^[A-Za-z\s]+$/.test(name);
 
 // Validates an email address using a regular expression

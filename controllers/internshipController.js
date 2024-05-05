@@ -195,129 +195,135 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid date format" });
         }
 
+        const currentDate = moment(); // Get the current date
+
+        if (!lastDateofApplying.isAfter(currentDate)) {
+            return res.status(400).send({status:false,message:"Please provide an application deadline that is after the current date."})
+        }
+
         if (!validation.checkData(numberOfOpenings)) {
             return res.status(400).send({ status: false, message: "numberOfOpenings is required" });
         }
 
-        if (!validation.validateInput(numberOfOpenings)) {
-            return res.status(400).send({ status: false, message: "Invalid numberOfOpenings" });
+            if (!validation.validateInput(numberOfOpenings)) {
+                return res.status(400).send({ status: false, message: "Invalid numberOfOpenings" });
+            }
+
+            if (!validation.checkData(stipend)) {
+                return res.status(400).send({ status: false, message: "stipend is required" });
+            }
+
+            //Parse the stipend string to extract minimum and maximum stipend values
+            const [minStipendStr, maxStipendStr] = stipend.split('-');
+
+            // Remove any non-numeric characters (except '-') and parse the stipend values as integers
+            const minimumStipend = parseInt(minStipendStr.trim().replace(/[^\d]/g, ''), 10);
+            const maximumStipend = parseInt(maxStipendStr.trim().replace(/[^\d]/g, ''), 10);
+
+
+            // Ensure that both minimum and maximum stipend values are valid numbers
+            if (isNaN(minimumStipend) || isNaN(maximumStipend)) {
+                return res.status(400).send({ status: false, message: "Invalid stipend format" });
+            }
+
+            //structure of internship show in database
+            const newInternship = {
+                companyId: companyId,
+                category,
+                position,
+                internshipType,
+                skillsRequired,
+                eligibility,
+                duration,
+                location,
+                applicationDeadline: lastDateofApplying,
+                numberOfOpenings,
+                stipend: `${minimumStipend}-${maximumStipend}`,
+                status
+            }
+
+            const createInternship = await internshipModel.create(newInternship);
+
+            //structure of internship shows to student
+
+            const responseInternshipStructure = {
+                By: isExistcompany.companyName,
+                Email: isExistcompany.companyEmail,
+                Contact: isExistcompany.contactNumber,
+                category: createInternship.category,
+                position: createInternship.position,
+                internshipType: createInternship.internshipType,
+                skillsRequired: createInternship.skillsRequired,
+                eligibility: createInternship.eligibility,
+                duration: createInternship.duration,
+                location: createInternship.location,
+                applicationDeadline: createInternship.applicationDeadline,
+                numberOfOpenings: createInternship.numberOfOpenings,
+                stipend: createInternship.stipend,
+                status: createInternship.status
+            }
+
+            return res.status(201).send({ status: true, message: "Internship successfully posted", data: responseInternshipStructure });
+
+        } catch (error) {
+            return res.status(503).send({ status: false, message: error.message });
         }
-
-        if (!validation.checkData(stipend)) {
-            return res.status(400).send({ status: false, message: "stipend is required" });
-        }
-
-        //Parse the stipend string to extract minimum and maximum stipend values
-        const [minStipendStr, maxStipendStr] = stipend.split('-');
-
-        // Remove any non-numeric characters (except '-') and parse the stipend values as integers
-        const minimumStipend = parseInt(minStipendStr.trim().replace(/[^\d]/g, ''), 10);
-        const maximumStipend = parseInt(maxStipendStr.trim().replace(/[^\d]/g, ''), 10);
-
-
-        // Ensure that both minimum and maximum stipend values are valid numbers
-        if (isNaN(minimumStipend) || isNaN(maximumStipend)) {
-            return res.status(400).send({ status: false, message: "Invalid stipend format" });
-        }
-
-        //structure of internship show in database
-        const newInternship = {
-            companyId: companyId,
-            category,
-            position,
-            internshipType,
-            skillsRequired,
-            eligibility,
-            duration,
-            location,
-            applicationDeadline: lastDateofApplying,
-            numberOfOpenings,
-            stipend: `${minimumStipend}-${maximumStipend}`,
-            status
-        }
-
-        const createInternship = await internshipModel.create(newInternship);
-
-        //structure of internship shows to student
-
-        const responseInternshipStructure = {
-            By: isExistcompany.companyName,
-            Email: isExistcompany.companyEmail,
-            Contact: isExistcompany.contactNumber,
-            category: createInternship.category,
-            position: createInternship.position,
-            internshipType: createInternship.internshipType,
-            skillsRequired: createInternship.skillsRequired,
-            eligibility: createInternship.eligibility,
-            duration: createInternship.duration,
-            location: createInternship.location,
-            applicationDeadline: createInternship.applicationDeadline,
-            numberOfOpenings: createInternship.numberOfOpenings,
-            stipend: createInternship.stipend,
-            status: createInternship.status
-        }
-
-        return res.status(201).send({ status: true, message: "Internship successfully posted", data: responseInternshipStructure });
-
-    } catch (error) {
-        return res.status(503).send({ status: false, message: error.message });
     }
-}
 
 //update internship
 const updateInternship = async function (req, res) {
-    try {
-        const internshipId = req.params._id;
+        try {
+            const internshipId = req.params._id;
 
-        const isExistInternship = await internshipModel.findById(internshipId);
-        if (!isExistInternship) {
-            return res.status(404).send({ status: false, message: "Internship not found" });
+            const isExistInternship = await internshipModel.findById(internshipId);
+            if (!isExistInternship) {
+                return res.status(404).send({ status: false, message: "Internship not found" });
+            }
+
+            const companyId = isExistInternship.companyId;
+
+            // Check if the logged-in company is authorized to update the internship
+            if (companyId != req.decodedToken.companyID) {
+                return res.status(403).send({ status: false, message: "Unauthorized to update internship details" });
+            }
+
+            //if company is authorized to update then take updated data from request body
+            const data = req.body;
+
+            if (!validation.isEmpty(data)) {
+                return res.status(400).send({ status: false, message: "No fields provided for update" });
+            }
+
+            // Extract only the allowed fields from the request body
+            const { status, internshipType, duration, } = data;
+
+            if (status && !["active", "closed"].includes(status)) {
+                return res.status(400).send({ status: false, message: "Invalid status value" });
+            }
+
+            if (internshipType && !["remote", "wfh", "wfo"].includes(internshipType)) {
+                return res.status(400).send({ status: false, message: "Invalid internshipType value" })
+            }
+
+            if (duration && !validation.validateInput(duration)) {
+                return res.status(400).send({ status: false, message: "Invalid duration" });
+            }
+
+            const updatedField = {
+                status,
+                internshipType,
+                duration
+            };
+
+            //update internship status
+            const updatedInternship = await internshipModel.findOneAndUpdate({ _id: internshipId }, updatedField);
+
+            return res.status(200).send({ status: true, message: " Status updated succesfully", data: updatedInternship })
+
+
+        } catch (error) {
+            return res.status(503).send({ status: false, message: error.message });
         }
-
-        const companyId = isExistInternship.companyId;
-
-        // Check if the logged-in company is authorized to update the internship
-        if (companyId != req.decodedToken.companyID) {
-            return res.status(403).send({ status: false, message: "Unauthorized to update internship details" });
-        }
-
-        //if company is authorized to update then take updated data from request body
-        const data = req.body;
-
-        if (!validation.isEmpty(data)) {
-            return res.status(400).send({ status: false, message: "No fields provided for update" });
-        }
-
-        // Extract only the allowed fields from the request body
-        const { status, internshipType, duration, } = data;
-
-        if (status && !["active", "closed"].includes(status)) {
-            return res.status(400).send({ status: false, message: "Invalid status value" });
-        }
-
-        if (internshipType && !["remote", "wfh", "wfo"].includes(internshipType)) {
-            return res.status(400).send({ status: false, message: "Invalid internshipType value" })
-        }
-
-        if (duration && !validation.validateInput(duration)) {
-            return res.status(400).send({ status: false, message: "Invalid duration" });
-        }
-
-        const updatedField = {
-            status,
-            internshipType,
-            duration
-        };
-
-        //update internship status
-        const updatedInternship = await internshipModel.findOneAndUpdate({ _id: internshipId }, updatedField, { new: true });
-
-        return res.status(200).send({ status: true, message: " Status updated succesfully", data: updatedInternship })
-
-
-    } catch (error) {
-        return res.status(503).send({ status: false, message: error.message });
     }
-}
 
-module.exports = { postInternship, updateInternship }
+    module.exports = { postInternship, updateInternship }

@@ -109,7 +109,7 @@ const registerStudent = async function (req, res) {
 const studentLogin = async function (req, res) {
     try {
         const data = req.body;
-        //if student doesnt send data 
+        //if student doesn't send data 
         if (!validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide details for login" });
         }
@@ -132,7 +132,7 @@ const studentLogin = async function (req, res) {
         if (!validation.checkPassword(password)) {
             return res.status(400).send({ status: false, message: "Invalid password" });
         }
-        //if provided email already present in database
+        //if provided email not present in database
         const isemailExist = await studentModel.findOne({ email: email });
         if (!isemailExist) {
             return res.status(404).send({ status: false, message: "Email not found" });
@@ -191,9 +191,7 @@ async function fetchCities(stateCode) {
 }
 
 
-
-
-//added additional details of students when student want to update/edit his/her details
+//added additional details of students when students update/edit his/her details
 //once student click on update/edit his/her details then student must to add all the details mentioned in edit/update
 const updateStudentdetails = async function (req, res) {
     try {
@@ -358,7 +356,7 @@ const getInternship = async function(req, res){
         //const fetchInternship give error
         //You cannot declare a const variable without initializing it with a value.
         let fetchInternship;
-        if (!filter) {
+        if (Object.keys(filter).length === 0) {
             fetchInternship = await internshipModel.find({ status: "active" });
         } else {
             fetchInternship = await internshipModel.find({
