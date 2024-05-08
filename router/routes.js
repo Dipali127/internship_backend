@@ -5,6 +5,8 @@ const companyController = require('../controllers/companyController');
 const internshipController = require('../controllers/internshipController');
 const applicationController = require('../controllers/applicationController');
 const jwt = require('../middleware/auth')
+const uploadFile = require('../fileUpload/multerConfig')
+
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>student>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register student
 router.post('/register', studentController.registerStudent);
@@ -15,7 +17,7 @@ router.put('/update/:_id', jwt.authentication,studentController.updateStudentdet
 //get Internship
 router.get('/getIntership', jwt.authentication,studentController.getInternship);
 //apply to internship
-router.post('/apply/:_id',jwt.authentication, applicationController.applyInternship)
+router.post('/apply/:_id',jwt.authentication,uploadFile,applicationController.applyInternship)
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>company>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register company
 router.post('/registerCompany', companyController.registerCompany)

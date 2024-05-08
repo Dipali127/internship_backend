@@ -50,7 +50,7 @@ const authentication = async function(req, res, next) {
         }
         
         //token contain bearer word along with token which is extra part of token which have to be removed.
-        console.log(token)
+        //console.log(token)
         // Split the token to remove the "Bearer" prefix
         const finalToken = token.split(' ');
         const newToken = finalToken[1];

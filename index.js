@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 app.use(express.json()) //handling json data
-app.use(express.urlencoded({extended:false}))  //handling form data
+app.use(express.urlencoded({extended:true}))  //handling form data(helps to parse the form data)
 
 const route = require('./router/routes');
 require('dotenv').config({path:'../.env'});
