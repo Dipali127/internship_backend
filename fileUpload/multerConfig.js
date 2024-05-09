@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 
 })
 
-// Create a Multer instance with the configured storage
+// Configure Multer to accept only PDF files
 const upload = multer({
     storage: storage,
     fileFilter: function (req, file, cb) {

@@ -41,13 +41,13 @@ const applyInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Provided internshipId internship doesn't exist" });
         }
 
-        // Check if the student has already applied for this internship
-       // const existingApplication = await applicationModel.findOne({internshipId :internshipId});
+        //Check if the student has already applied for this internship
+       const existingApplication = await applicationModel.findOne({internshipId :internshipId});
 
-        //If the application of this internship already exists.
-        // if (existingApplication) {
-        //     return res.status(400).send({ status: false, message: "You have already applied for this internship" });
-        // }
+       // If the application of this internship already exists.
+        if (existingApplication) {
+            return res.status(400).send({ status: false, message: "You have already applied for this internship" });
+        }
         
         //f a file was uploaded(req.file exists),resumePath will be assigned the path of the uploaded file(req.file.path).
         //multer uploaded file inside req.file property
