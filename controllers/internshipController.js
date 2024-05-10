@@ -89,13 +89,6 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Position is required" });
         }
 
-        //if same position internship created multiple times
-        const positionCheck = await internshipModel.findOne({ position: position });
-
-        if (positionCheck) {
-            return res.status(400).send({ status: false, message: "Position already exist" });
-        }
-
         if (!positionsForCategory.includes(position)) {
             return res.status(400).send({ status: false, message: "Position is not valid for the selected category" })
         }

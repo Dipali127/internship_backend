@@ -56,7 +56,12 @@ const registerCompany = async function (req, res) {
         if (!validation.checkMobile(contactNumber)) {
             return res.status(400).send({ status: false, message: "Invalid contact number" });
         }
+       
+        const existingContact = await companyModel.findOne({contactNumber:contactNumber});
 
+        if(existingContact){
+            return res.status(409).send({status:false,message:"Provided contact number already exists"});
+        }
 
         const newDetails = {
             companyName: companyName,

@@ -27,6 +27,8 @@ router.post('/loginCompany', companyController.companyLogin);
 router.post('/postInternship/:_id', jwt.authentication,internshipController.postInternship);
 //update internship
 router.put('/updateInternship/:_id', jwt.authentication, internshipController.updateInternship);
+//get application review
+router.get('/getAllAppliedStudents/:internshipId', jwt.authentication, applicationController.getAllAppliedStudents )
 
 //route to handle endpoint 
 router.all("/*",(req,res)=>{res.status(404).send({status:false,message:"Endpoint is not correct"})})

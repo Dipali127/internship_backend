@@ -12,6 +12,10 @@ mongoose.connect(process.env.clusterString,).then(()=>{console.log("mongoDB conn
 
 const port = process.env.PORT||3000;
 
+// Serve static files from the 'uploads' directory
+// Any files in the 'uploads' directory can be accessed via URLs starting with '/uploads'
+app.use('/uploads', express.static('uploads'));
+
 app.use('/',route);
 
 app.listen(port, ()=>{console.log(`server listen on port ${port}`)});

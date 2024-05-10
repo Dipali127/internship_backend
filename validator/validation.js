@@ -23,7 +23,7 @@ const checkPassword = (password) =>
 const checkMobile = (mobileNumber) => {return /^[6-9]\d{9}$/.test(mobileNumber)}
 
 //Validate input data consists only of numbers.
-const validateInput = (input) => /^[0-9a-zA-Z\s]+$/.test(input);
+const validateInput = (input) => /^[0-9\s]+$/.test(input);
 
 
 //Validate stipend format includes numbers, commas for thousands separators,
