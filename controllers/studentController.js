@@ -78,7 +78,7 @@ const registerStudent = async function (req, res) {
 
         if (!validation.checkData(mobileNumber)) {
             return res.status(400).send({ status: false, message: "mobileNumber is required" });
-        } 
+        }
 
         if (!validation.checkMobile(mobileNumber)) {
             return res.status(400).send({ status: false, message: "Invalid mobileNumber" });
@@ -166,23 +166,23 @@ const studentLogin = async function (req, res) {
 async function fetchCities(stateCode) {
     try {
         const response = await axios.get(`http://api.geonames.org/searchJSON?country=IN&adminCode1=${stateCode}&maxRows=1000&username=${process.env.geoNames_userName}`);
-        
+
         console.log("Response:", response.data); // Log the response data
-        
+
         // Check if response status is OK
         if (response.status !== 200) {
             throw new Error(`Failed to fetch cities: HTTP status ${response.status}`);
         }
-        
+
         // Check if response data is available and contains the expected structure
         if (!response.data || !response.data.geonames || !Array.isArray(response.data.geonames)) {
             throw new Error('No geonames data available or unexpected response structure');
         }
-        
-        // Extract city names from the response data
-         return response.data.geonames.map(city => city.name);
 
- 
+        // Extract city names from the response data
+        return response.data.geonames.map(city => city.name);
+
+
 
     } catch (error) {
         console.error("Error fetching cities:", error.message);
@@ -311,7 +311,7 @@ const updateStudentdetails = async function (req, res) {
         if (!Object.keys(indianStates).includes(state)) {
             return res.status(400).send({ status: false, message: "Invalid state" });
         }
-        
+
         //fetch the stateCode corresponding to the state given by student
         const stateCode = indianStates[state];
         console.log(stateCode)
@@ -319,7 +319,7 @@ const updateStudentdetails = async function (req, res) {
         if (!validation.checkData(city)) {
             return res.status(400).send({ status: false, message: "city is required" });
         }
-        
+
         console.log(city)
         // Fetch cities for the provided state's stateCode
         const cities = await fetchCities(stateCode)
@@ -349,7 +349,7 @@ const updateStudentdetails = async function (req, res) {
 }
 
 //get internship:
-const getInternship = async function(req, res){
+const getInternship = async function (req, res) {
     try {
         const filter = req.query;
         //In JavaScript, when you declare a variable using const, you must assign an initial value to it. 
@@ -359,17 +359,33 @@ const getInternship = async function(req, res){
         if (Object.keys(filter).length === 0) {
             fetchInternship = await internshipModel.find({ status: "active" });
         } else {
-            fetchInternship = await internshipModel.find({
-                $or:[{category: filter.category},
-                {internshipType: filter.internshipType},
-                {location: filter.location},]
-            }).find({status:"active"});
+            const query = {status: "active"};
+
+            if(filter.category){query.category = filter.category};
+            if(filter.internshipType){query.internshipType = filter.internshipType};
+            if (filter.location) {
+                if (filter.location.state) query['location.state'] = filter.location.state;
+                if (filter.location.city) query['location.city'] = filter.location.city;
+            }
+
+            fetchInternship = await internshipModel.find(query);
         }
 
         return res.status(200).send({ status: true, message: "Successfully fetched internships", data: fetchInternship });
-    } catch(error) {
+    } catch (error) {
         return res.status(503).send({ status: false, message: error.message });
     }
 }
+
+//about accessing object key 
+//ok i understood you mean if i have a single key value in internship model then it is good way to acsess using dot
+// operator but if the key value are nested inside object and accessing with dot operator is not good like in my code
+// inside location there are two key value pair that is state and city and accessing
+ //location.city will not give correct result so it is good to aceess like query['location.state']
+
+ //Dot notation works well for accessing properties directly within an object, especially when those properties are 
+ //simple and follow standard naming conventions. However, when dealing with nested objects or properties with 
+ //special characters,
+//bracket notation is more versatile and allows you to access those properties accurately.
 
 module.exports = { registerStudent, studentLogin, updateStudentdetails, getInternship };

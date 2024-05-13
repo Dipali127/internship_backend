@@ -25,7 +25,7 @@ const applyInternship = async function (req, res) {
         //Fetch data from request body
         const data = req.body;
         console.log(data);
-        const { internshipId, status } = data;
+        const {internshipId} = data;
 
         //Validate request body data
         if (!validation.checkData(internshipId)) {
@@ -59,8 +59,7 @@ const applyInternship = async function (req, res) {
         const newApplication = {
             studentId: studentId,
             internshipId: internshipId,
-            resume: resumePath, //assign the resume path
-            status: status || "pending"
+            resume: resumePath //assign the resume path
         };
 
         // Save data of application in database
@@ -85,7 +84,7 @@ const getAllAppliedStudents  = async function (req, res) {
 
         const isExistcompany = await internshipModel.findOne({ _id: internshipId });
         if (!isExistcompany) {
-            return res.status((400).send({ status: false, message: "Provided internship doesn't exist" }));
+            return res.status(400).send({ status: false, message: "Provided internship doesn't exist" });
         }
 
         const companyId = isExistcompany.companyId;

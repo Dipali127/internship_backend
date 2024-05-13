@@ -26,7 +26,7 @@ router.post('/loginCompany', companyController.companyLogin);
 //company post internship
 router.post('/postInternship/:_id', jwt.authentication,internshipController.postInternship);
 //update internship
-router.put('/updateInternship/:_id', jwt.authentication, internshipController.updateInternship);
+router.put('/updateInternship/:internshipId', jwt.authentication, internshipController.updateInternship);
 //get application review
 router.get('/getAllAppliedStudents/:internshipId', jwt.authentication, applicationController.getAllAppliedStudents )
 

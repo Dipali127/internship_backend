@@ -37,6 +37,7 @@ async function fetchCities(stateCode) {
 const postInternship = async function (req, res) {
     try {
         const companyId = req.params._id;
+        //Check if the provided companyId is a valid MongoDB ObjectId.
         if (!validation.checkObjectId(companyId)) {
             return res.status(400).send({ status: false, message: "Invalid companyId" });
         }
@@ -49,7 +50,7 @@ const postInternship = async function (req, res) {
 
         const loggedInCompany = req.decodedToken.companyID;
 
-        if (companyId != loggedInCompany) {
+        if (isExistcompany._id != loggedInCompany) {
             return res.status(403).send({ status: false, message: "Unauthorized to post internship details" });
         }
 
@@ -91,6 +92,12 @@ const postInternship = async function (req, res) {
 
         if (!positionsForCategory.includes(position)) {
             return res.status(400).send({ status: false, message: "Position is not valid for the selected category" })
+        }
+ 
+        //if position of this company already exist
+        const isExistPosition = await internshipModel.findOne({companyId:companyId,position:position});
+        if(isExistPosition){
+            return res.status(409).send({ status: false, message: "An internship with the same position already exists for this company" });
         }
 
         if (!validation.checkData(skillsRequired)) {
@@ -266,7 +273,11 @@ const postInternship = async function (req, res) {
 //update internship
 const updateInternship = async function (req, res) {
         try {
-            const internshipId = req.params._id;
+            const internshipId = req.params.internshipId;
+            //Check if the provided internshipId is a valid MongoDB ObjectId.
+            if (!validation.checkObjectId(internshipId)) {
+                return res.status(400).send({ status: false, message: "Invalid internshipId" });
+            }
 
             const isExistInternship = await internshipModel.findById(internshipId);
             if (!isExistInternship) {
@@ -309,9 +320,9 @@ const updateInternship = async function (req, res) {
             };
 
             //update internship status
-            const updatedInternship = await internshipModel.findOneAndUpdate({ _id: internshipId }, updatedField);
+            const updatedInternship = await internshipModel.findOneAndUpdate({ _id: internshipId }, updatedField,{new:true});
 
-            return res.status(200).send({ status: true, message: " Status updated succesfully", data: updatedInternship })
+            return res.status(200).send({ status: true, message: " Status updated succesfully", data: updatedInternship})
 
 
         } catch (error) {
