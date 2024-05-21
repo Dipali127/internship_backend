@@ -4,35 +4,7 @@ const validation = require('../validator/validation');
 const axios = require('axios');
 require('dotenv').config({ path: '../../.env' });
 const moment = require('moment');
-
-
-//function to fetch all the cities based of specific state
-async function fetchCities(stateCode) {
-    try {
-        const response = await axios.get(`http://api.geonames.org/searchJSON?country=IN&adminCode1=${stateCode}&maxRows=1000&username=${process.env.geoNames_userName}`);
-
-        console.log("Response:", response.data); // Log the response data
-
-        // Check if response status is OK
-        if (response.status !== 200) {
-            throw new Error(`Failed to fetch cities: HTTP status ${response.status}`);
-        }
-
-        // Check if response data is available and contains the expected structure
-        if (!response.data || !response.data.geonames || !Array.isArray(response.data.geonames)) {
-            throw new Error('No geonames data available or unexpected response structure');
-        }
-
-        // Extract city names from the response data
-        return response.data.geonames.map(city => city.name);
-
-
-
-    } catch (error) {
-        console.log("Error fetching cities:", error.message);
-        return [];
-    }
-}
+const {Country, State, City} = require("country-state-city");
 //create internship
 const postInternship = async function (req, res) {
     try {
@@ -129,59 +101,24 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "state is required" })
         }
 
-        //All the states of india for internship
-        const indianStates = {
-            "Andhra Pradesh": "02",
-            "Arunachal Pradesh": "30",
-            "Assam": "03",
-            "Bihar": "34",
-            "Chhattisgarh": "37",
-            "Goa": "33",
-            "Gujarat": "09",
-            "Haryana": "10",
-            "Himachal Pradesh": "11",
-            "Jharkhand": "38",
-            "Karnataka": "19",
-            "Kerala": "13",
-            "Madhya Pradesh": "35",
-            "Maharashtra": "16",
-            "Manipur": "17",
-            "Meghalaya": "18",
-            "Mizoram": "31",
-            "Nagaland": "20",
-            "Odisha": "21",
-            "Punjab": "23",
-            "Rajasthan": "24",
-            "Sikkim": "29",
-            "Tamil Nadu": "25",
-            "Telangana": "40",
-            "Tripura": "26",
-            "Uttar Pradesh": "36",
-            "Uttarakhand": "39",
-            "West Bengal": "28",
-            "Delhi": "07"
-        };
-
-        //check if state is from indianStates
-        if (!Object.keys(indianStates).includes(location.state)) {
+        //fetch the stateCode corresponding to the state given by student
+        const states = State.getStatesOfCountry("IN");
+        const stateObject = states.find(s => s.name === location.state);
+        if (!stateObject) {
             return res.status(400).send({ status: false, message: "Invalid state" });
         }
-
-        //fetch the stateCode corresponding to the state given by student
-        const stateCode = indianStates[location.state];
-        console.log(stateCode)
-
+        const stateCode = stateObject.isoCode;
+        
         if (!validation.checkData(location.city)) {
             return res.status(400).send({ status: false, message: "city is required" });
         }
 
-        console.log(location.city)
-        // Fetch cities for the provided state's stateCode
-        const cities = await fetchCities(stateCode)
-        console.log(cities)
+        // Fetch all the cities for the provided state's stateCode
+        const cities = City.getCitiesOfState("IN", stateCode);
+        const cityExists = cities.some(c => c.name === location.city);
 
-        // Check if the provided city is one of the fetched cities
-        if (!cities.includes(location.city)) {
+        // Check if the provided city is one of the fetched cities 
+        if (!cityExists) {
             return res.status(400).send({ status: false, message: "Invalid city" });
         }
 

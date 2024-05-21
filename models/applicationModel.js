@@ -4,12 +4,12 @@ const objectId = mongoose.Schema.Types.ObjectId;
 const applicationSchema = new mongoose.Schema({
     studentId: {
         type: objectId,
-        ref: 'User', // Reference to the User model (assuming student is a user)
+        ref: 'Student',
         required: true
     },
     internshipId: {
         type: objectId,
-        ref: 'Internship', // Reference to the Internship model
+        ref: 'Internship',
         required: true
     },
     resume: {

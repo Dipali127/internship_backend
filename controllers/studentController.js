@@ -1,48 +1,24 @@
-//const dob = moment(DOB, 'YYYY-MM-DD');
-//Here, DOB is assumed to be a string containing the date of birth in the format 'YYYY-MM-DD'.
-// Moment.js parses this string and creates a Moment object representing the date and assign it to dob variable.
-//if (!dob.isValid() || moment().diff(dob, 'years') < minAge): This conditional statement checks two conditions:
-//This checks if the parsed date of birth (dob) is valid. If it's not a valid date (e.g., if the user entered an 
-//invalid date format), dob.isValid() will return false.
-//. moment().diff(dob, 'years') < minAge: This calculates the difference in years between the current 
-//date (obtained using moment()) and the parsed date of birth (dob)
-//If this difference is less than minAge (in this case, 18 years), it means the user is younger than the required age.
-// isValid() is indeed a function provided by Moment.js to check if a Moment object represents a valid date.
-
-//Yes, exactly. GeoNames provides API endpoints like searchJSON which allow developers to query geographical data, including cities, 
-//countries, and other locations, using various parameters such as country code, state code, city name, etc.
-
-//However, GeoNames doesn't provide pre-defined functions in programming languages like JavaScript. Instead, developers use HTTP 
-//requests to interact with these API endpoints directly. They may write custom functions or wrappers in their programming language of
-// choice to simplify the process of making requests to these endpoints and handling responses.
-
-//The fetchCities function you provided is an example of such a custom function. It's a JavaScript function that utilizes Axios, a 
-//popular HTTP client library, to make a GET request to the GeoNames searchJSON endpoint with specific parameters. This function is
-// not provided by GeoNames itself but is written by a developer to interact with the GeoNames 
-//API in a specific way, in this case, fetching cities based on a state code.
-
-
 const studentModel = require('../models/studentModel');
 const internshipModel = require('../models/internshipModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-require('dotenv').config({ path: '../../.env' });
+require('dotenv').config({ path: '../.env' });
 const validation = require('../validator/validation');
 const moment = require('moment');
 const axios = require('axios');
 
-//register studentDetails:
+//Register student details:
 const registerStudent = async function (req, res) {
     try {
         const data = req.body;
-        //if student doesnt send data 
+        //Check if request body is empty 
         if (!validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide details for registration" });
         }
-        //destructuring request body data which are mandatory at the time of registration
+        //Destructure mandatory fields from request body
         const { name, email, password, mobileNumber } = data;
 
-        //if student forgot to send any of details as well as validate the provided details are correct
+        //Validate mandatory details
         if (!validation.checkData(name)) {
             return res.status(400).send({ status: false, message: "studentName is required" })
         }
@@ -59,7 +35,7 @@ const registerStudent = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid email" })
         }
 
-        //if provided email already present in database
+        //Check if the provided email already present in database
         const existingEmail = await studentModel.findOne({ email: email });
         if (existingEmail) {
             return res.status(409).send({ status: false, message: "The provided email already exists" })
@@ -73,7 +49,7 @@ const registerStudent = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid password" });
         }
 
-        //hashed password
+        //Hash the password before saving it in database
         const encryptPassword = await bcrypt.hash(password, 10)
 
         if (!validation.checkData(mobileNumber)) {
@@ -84,37 +60,38 @@ const registerStudent = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid mobileNumber" });
         }
 
-        //unique mobile number
+        //Check if the provided mobile number already exists in the database
         const uniqueMobile = await studentModel.findOne({ mobileNumber: mobileNumber });
         if (uniqueMobile) {
             return res.status(409).send({ status: false, message: "Provided mobile number already exist" });
         }
 
-
+        //Prepare the new student details with the encrypted password
         const newDetails = {
             name: name,
             email: email,
             password: encryptPassword,
             mobileNumber: mobileNumber
         }
-
+        
+        //Save the new student record in the database
         const createStudent = await studentModel.create(newDetails);
         return res.status(200).send({ status: true, message: "Student registered successfully", studentData: createStudent });
     } catch (error) {
-        return res.status(503).send({ status: false, message: error.message });
+        return res.status(500).send({ status: false, message: error.message });
     }
 }
 
-//student login:
+//Student login:
 const studentLogin = async function (req, res) {
     try {
         const data = req.body;
-        //if student doesn't send data 
+        //Check if request body is empty 
         if (!validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide details for login" });
         }
 
-        //destructuring email and password from request body to login student
+        //Destructure email and password from request body 
         const { email, password } = data;
 
         if (!validation.checkData(email)) {
@@ -125,6 +102,12 @@ const studentLogin = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid email" });
         }
 
+        //Check if the provided email not present in database
+        const isemailExist = await studentModel.findOne({ email: email });
+        if (!isemailExist) {
+            return res.status(404).send({ status: false, message: "Email not found" });
+        }
+
         if (!validation.checkData(password)) {
             return res.status(400).send({ status: false, message: "Provide password for login" });
         }
@@ -132,19 +115,13 @@ const studentLogin = async function (req, res) {
         if (!validation.checkPassword(password)) {
             return res.status(400).send({ status: false, message: "Invalid password" });
         }
-        //if provided email not present in database
-        const isemailExist = await studentModel.findOne({ email: email });
-        if (!isemailExist) {
-            return res.status(404).send({ status: false, message: "Email not found" });
-        }
-
-        //compare hassedPassword with the student provided password
-        //if password valid then it return boolean value
+        
+        //Compare hashedPassword with the student provided password
         const comparePassword = await bcrypt.compare(password, isemailExist.password);
 
-        //If password don't match
+        //If password doesn't match
         if (!comparePassword) {
-            return res.status(404).send({ status: false, message: "Invalid password" })
+            return res.status(404).send({ status: false, message: "Incorrect password" })
         }
 
         //Generate token for student
@@ -156,52 +133,24 @@ const studentLogin = async function (req, res) {
         // Set the token in the response header
         res.set('Authorization', `Bearer ${token}`)
 
-        return res.status(200).send({ status: true, message: "student login succesfully", token: token });
+        return res.status(200).send({ status: true, message: "Student login successfully", token: token });
     } catch (error) {
         return res.status(503).send({ status: false, message: error.message })
     }
 }
 
-//function to fetch all the cities based of specific state
-async function fetchCities(stateCode) {
-    try {
-        const response = await axios.get(`http://api.geonames.org/searchJSON?country=IN&adminCode1=${stateCode}&maxRows=1000&username=${process.env.geoNames_userName}`);
-
-        console.log("Response:", response.data); // Log the response data
-
-        // Check if response status is OK
-        if (response.status !== 200) {
-            throw new Error(`Failed to fetch cities: HTTP status ${response.status}`);
-        }
-
-        // Check if response data is available and contains the expected structure
-        if (!response.data || !response.data.geonames || !Array.isArray(response.data.geonames)) {
-            throw new Error('No geonames data available or unexpected response structure');
-        }
-
-        // Extract city names from the response data
-        return response.data.geonames.map(city => city.name);
-
-
-
-    } catch (error) {
-        console.error("Error fetching cities:", error.message);
-        return [];
-    }
-}
-
-
 //added additional details of students when students update/edit his/her details
 //once student click on update/edit his/her details then student must to add all the details mentioned in edit/update
+const {Country, State, City} = require("country-state-city");
 const updateStudentdetails = async function (req, res) {
     try {
-        const studentId = req.params._id;
+        const studentId = req.params.studentID;
         if (!validation.checkObjectId(studentId)) {
             return res.status(400).send({ status: false, message: "Invalid studentId" });
         }
         const isExiststudent = await studentModel.findById(studentId);
         //if provided studentId student not exist
-        if (!validation.isEmpty(isExiststudent)) {
+        if (!isExiststudent) {
             return res.status(400).send({ status: false, message: "Student not found" });
         }
 
@@ -274,59 +223,24 @@ const updateStudentdetails = async function (req, res) {
             return res.status(400).send({ status: false, message: "state is required" });
         }
 
-        //All the states of india for internship
-        const indianStates = {
-            "Andhra Pradesh": "02",
-            "Arunachal Pradesh": "30",
-            "Assam": "03",
-            "Bihar": "34",
-            "Chhattisgarh": "37",
-            "Goa": "33",
-            "Gujarat": "09",
-            "Haryana": "10",
-            "Himachal Pradesh": "11",
-            "Jharkhand": "38",
-            "Karnataka": "19",
-            "Kerala": "13",
-            "Madhya Pradesh": "35",
-            "Maharashtra": "16",
-            "Manipur": "17",
-            "Meghalaya": "18",
-            "Mizoram": "31",
-            "Nagaland": "20",
-            "Odisha": "21",
-            "Punjab": "23",
-            "Rajasthan": "24",
-            "Sikkim": "29",
-            "Tamil Nadu": "25",
-            "Telangana": "40",
-            "Tripura": "26",
-            "Uttar Pradesh": "36",
-            "Uttarakhand": "39",
-            "West Bengal": "28",
-            "Delhi": "07"
-        };
-
-        //check if state is from indianStates
-        if (!Object.keys(indianStates).includes(state)) {
+        //fetch the stateCode corresponding to the state given by student
+        const states = State.getStatesOfCountry("IN");
+        const stateObject = states.find(s => s.name === state);
+        if (!stateObject) {
             return res.status(400).send({ status: false, message: "Invalid state" });
         }
-
-        //fetch the stateCode corresponding to the state given by student
-        const stateCode = indianStates[state];
-        console.log(stateCode)
+        const stateCode = stateObject.isoCode;
 
         if (!validation.checkData(city)) {
             return res.status(400).send({ status: false, message: "city is required" });
         }
 
-        console.log(city)
-        // Fetch cities for the provided state's stateCode
-        const cities = await fetchCities(stateCode)
-        console.log(cities)
+        // Fetch all the cities for the provided state's stateCode
+        const cities = City.getCitiesOfState("IN", stateCode);
+        const cityExists = cities.some(c => c.name === city);
 
-        // Check if the provided city is one of the fetched cities
-        if (!cities.includes(city)) {
+        // Check if the provided city is one of the fetched cities 
+        if (!cityExists) {
             return res.status(400).send({ status: false, message: "Invalid city" });
         }
 

@@ -13,8 +13,8 @@ const checkName = (name) => /^[A-Za-z\s]+$/.test(name);
 // Validates an email address using a regular expression
 const checkEmail = (email) => {return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)};
 
-//password contain one small letter, one capital letter, one digti and one special character.
-//length of password is minimum of length 8.
+//password must contain one small letter, one capital letter, one digti and one special character.
+//length of password should be minimum of length 8.
 const checkPassword = (password) =>
  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/.test(password);
 
