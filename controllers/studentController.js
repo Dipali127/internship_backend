@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config({ path: '../.env' });
 const validation = require('../validator/validation');
 const moment = require('moment');
-const axios = require('axios');
 
 //Register student details:
 const registerStudent = async function (req, res) {
@@ -73,7 +72,7 @@ const registerStudent = async function (req, res) {
             password: encryptPassword,
             mobileNumber: mobileNumber
         }
-        
+
         //Save the new student record in the database
         const createStudent = await studentModel.create(newDetails);
         return res.status(200).send({ status: true, message: "Student registered successfully", studentData: createStudent });
@@ -115,7 +114,7 @@ const studentLogin = async function (req, res) {
         if (!validation.checkPassword(password)) {
             return res.status(400).send({ status: false, message: "Invalid password" });
         }
-        
+
         //Compare hashedPassword with the student provided password
         const comparePassword = await bcrypt.compare(password, isemailExist.password);
 
@@ -139,22 +138,19 @@ const studentLogin = async function (req, res) {
     }
 }
 
-//added additional details of students when students update/edit his/her details
-//once student click on update/edit his/her details then student must to add all the details mentioned in edit/update
-const {Country, State, City} = require("country-state-city");
-const updateStudentdetails = async function (req, res) {
+//Edit student details:
+const editStudentdetails = async function (req, res) {
     try {
         const studentId = req.params.studentID;
         if (!validation.checkObjectId(studentId)) {
             return res.status(400).send({ status: false, message: "Invalid studentId" });
         }
+
         const isExiststudent = await studentModel.findById(studentId);
         //if provided studentId student not exist
         if (!isExiststudent) {
             return res.status(400).send({ status: false, message: "Student not found" });
         }
-
-
         const loggedInStudent = req.decodedToken.studentID;
 
         if (studentId != loggedInStudent) {
@@ -171,23 +167,15 @@ const updateStudentdetails = async function (req, res) {
             return res.status(400).send({ status: false, message: "DOB is required" });
         }
 
-        // Additional validation, e.g., ensuring the user is at least 18 years old
-        const dob = moment(DOB, 'YYYY-MM-DD'); // Parsing DOB using moment.js
-        const minAge = 18; // Minimum age required
+        // Parsing DOB using moment.js
+        const dob = moment(DOB, 'YYYY-MM-DD');
 
         if (!dob.isValid()) {
             return res.status(400).send({ status: false, message: "Invalid date format" });
         }
 
-        if (moment().diff(dob, 'years') < minAge) {
-            return res.status(400).send({ status: false, message: "Student must be at least 18 years old" });
-        }
         if (!validation.checkData(collegeName)) {
             return res.status(400).send({ status: false, message: "collegeName is required" });
-        }
-
-        if (!validation.checkName(collegeName)) {
-            return res.status(400).send({ status: false, message: "Invalid college name" });
         }
 
         if (!validation.checkData(yearOfPassout)) {
@@ -199,49 +187,16 @@ const updateStudentdetails = async function (req, res) {
             return res.status(400).send({ status: false, message: "yearOfPassout must be a number" });
         }
 
-        //All the areaOfInterest in internship website
-        const AreaOfInterest = [
-            'Web Development',
-            'Mobile Development',
-            'Data Science',
-            'Cybersecurity',
-            'DevOps and Cloud Computing',
-            'UI/UX Design',
-            'Content Writing'
-        ];
-
         if (!validation.checkData(areaOfInterest)) {
             return res.status(400).send({ status: false, message: "areaOfInterest is required" });
-        }
-
-        //check if areaOfinterest is from AreaOfInterest
-        if (!AreaOfInterest.includes(areaOfInterest)) {
-            return res.status(400).send({ status: false, message: "Invalid areaOfInterest" });
         }
 
         if (!validation.checkData(state)) {
             return res.status(400).send({ status: false, message: "state is required" });
         }
 
-        //fetch the stateCode corresponding to the state given by student
-        const states = State.getStatesOfCountry("IN");
-        const stateObject = states.find(s => s.name === state);
-        if (!stateObject) {
-            return res.status(400).send({ status: false, message: "Invalid state" });
-        }
-        const stateCode = stateObject.isoCode;
-
         if (!validation.checkData(city)) {
             return res.status(400).send({ status: false, message: "city is required" });
-        }
-
-        // Fetch all the cities for the provided state's stateCode
-        const cities = City.getCitiesOfState("IN", stateCode);
-        const cityExists = cities.some(c => c.name === city);
-
-        // Check if the provided city is one of the fetched cities 
-        if (!cityExists) {
-            return res.status(400).send({ status: false, message: "Invalid city" });
         }
 
         const additionalData = {
@@ -262,21 +217,18 @@ const updateStudentdetails = async function (req, res) {
     }
 }
 
-//get internship:
+//Get internship:
 const getInternship = async function (req, res) {
     try {
         const filter = req.query;
-        //In JavaScript, when you declare a variable using const, you must assign an initial value to it. 
-        //const fetchInternship give error
-        //You cannot declare a const variable without initializing it with a value.
         let fetchInternship;
         if (Object.keys(filter).length === 0) {
             fetchInternship = await internshipModel.find({ status: "active" });
         } else {
-            const query = {status: "active"};
+            const query = { status: "active" };
 
-            if(filter.category){query.category = filter.category};
-            if(filter.internshipType){query.internshipType = filter.internshipType};
+            if (filter.category) { query.category = filter.category };
+            if (filter.internshipType) { query.internshipType = filter.internshipType };
             if (filter.location) {
                 if (filter.location.state) query['location.state'] = filter.location.state;
                 if (filter.location.city) query['location.city'] = filter.location.city;
@@ -291,15 +243,4 @@ const getInternship = async function (req, res) {
     }
 }
 
-//about accessing object key 
-//ok i understood you mean if i have a single key value in internship model then it is good way to acsess using dot
-// operator but if the key value are nested inside object and accessing with dot operator is not good like in my code
-// inside location there are two key value pair that is state and city and accessing
- //location.city will not give correct result so it is good to aceess like query['location.state']
-
- //Dot notation works well for accessing properties directly within an object, especially when those properties are 
- //simple and follow standard naming conventions. However, when dealing with nested objects or properties with 
- //special characters,
-//bracket notation is more versatile and allows you to access those properties accurately.
-
-module.exports = { registerStudent, studentLogin, updateStudentdetails, getInternship };
+module.exports = { registerStudent, studentLogin, editStudentdetails, getInternship };

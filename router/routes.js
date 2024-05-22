@@ -13,7 +13,7 @@ router.post('/register', studentController.registerStudent);
 //login student
 router.post('/loginStudent', studentController.studentLogin);
 //update student details
-router.put('/update/:studentID', jwt.authentication,studentController.updateStudentdetails)
+router.put('/update/:studentID', jwt.authentication,studentController.editStudentdetails)
 //get Internship
 router.get('/getIntership', jwt.authentication,studentController.getInternship);
 //apply to internship
@@ -24,7 +24,7 @@ router.post('/registerCompany', companyController.registerCompany)
 //login company
 router.post('/loginCompany', companyController.companyLogin);
 //company post internship
-router.post('/postInternship/:_id', jwt.authentication,internshipController.postInternship);
+router.post('/postInternship/:companyId', jwt.authentication,internshipController.postInternship);
 //update internship
 router.put('/updateInternship/:internshipId', jwt.authentication, internshipController.updateInternship);
 //get application review
