@@ -39,30 +39,9 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Category is required" });
         }
 
-        // const validCategory = {
-        //     'Web Development': ['Frontend Developer', 'Backend Developer', 'full stack Developer'],
-        //     'Mobile Development': ['Mobile App Developer', 'iOS Developer', 'Android Developer'],
-        //     'Data Science': ['Data Scientist', 'Data Analyst', 'Machine Learning Engineer', 'Data Engineer'],
-        //     'Cybersecurity': ['Security Analyst', 'Security Engineer'],
-        //     'DevOps and Cloud Computing': ['Cloud Architect', 'DevSecOps Engineer', 'Cloud Security Engineer'],
-        //     'UI/UX Design': ['UI Developer/Frontend Developer', 'UX Developer', 'Visual Designer'],
-        //     'Content Writing': ['Content Writer (Technical Content)', 'Technical Writer', 'SEO Specialist']
-        // }
-
-        // if (!validCategory.hasOwnProperty(category)) {
-        //     return res.status(400).send({ status: false, message: "Invalid category" });
-        // }
-
-        // //here, we fetch all the position in array which are under provided category by company
-        // const positionsForCategory = validCategory[category];
-
         if (!validation.checkData(position)) {
             return res.status(400).send({ status: false, message: "Position is required" });
         }
-
-        // if (!positionsForCategory.includes(position)) {
-        //     return res.status(400).send({ status: false, message: "Position is not valid for the selected category" })
-        // }
 
         //if position of this company already exist
         const isExistPosition = await internshipModel.findOne({ companyId: companyId, position: position });
@@ -78,18 +57,9 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "eligibility is required" });
         }
 
-        //eligibility only contain capital letter,small letter and space
-        // if (!validation.checkName(eligibility)) {
-        //     return res.status(400).send({ status: false, message: "Invalid eligibility" });
-        // }
-
         if (!validation.checkData(duration)) {
             return res.status(400).send({ status: false, message: "Duration is required" });
         }
-
-        // if (!validation.validateInput(duration)) {
-        //     return res.status(400).send({ status: false, message: "Invalid duration" });
-        // }
 
         if (!validation.isEmpty(location)) {
             return res.status(400).send({ status: false, message: "location is required" });
@@ -147,7 +117,7 @@ const postInternship = async function (req, res) {
 
         //structure of internship show in database
         const newInternship = {
-            companyId: companyId,
+            By: isExistcompany.companyName,
             category,
             position,
             internshipType,

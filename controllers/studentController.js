@@ -2,7 +2,7 @@ const studentModel = require('../models/studentModel');
 const internshipModel = require('../models/internshipModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-require('dotenv').config({ path: '../.env' });
+//require('dotenv').config({ path: '../.env' });
 const validation = require('../validator/validation');
 const moment = require('moment');
 

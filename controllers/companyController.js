@@ -1,15 +1,13 @@
 const companyModel = require('../models/companyModel.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-require('dotenv').config({ path: '../../.env' });
+require('dotenv').config({ path: '../.env' });
 const validation = require('../validator/validation.js');
 
 
 //company registration and login typically refer to the process where an authorized representative of the company, 
 //such as an employer, owner, or HR personnel, registers and logs in to the website. 
 //Once logged in, they can post internship opportunities offered by their company. 
-
-
 // Register Company Function
 const registerCompany = async function (req, res) {
     try {

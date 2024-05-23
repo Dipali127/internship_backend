@@ -1,20 +1,16 @@
-const multer = require("multer");
-//the below code doesn't provide acess of reading or manipulating file.
-//create an instance of multer
-//const upload = multer({dest: './uploaded/files'}); //automatically create folder 'uploaded' in our local system .
-
+const multer = require('multer');
 //created multer instance with disk storage to upload files
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         return cb(null, './uploads') // null is custom error added by developer
     },
     filename: function (req, file, cb) {
-        return cb(null, `${Date.now()}-${file.originalname}`)
+        cb(null, `${Date.now()}-${file.originalname}`); // Use a timestamp to avoid name conflicts
     }
 
 })
 
-// Configure Multer to accept only PDF files
+// //Configure Multer to accept only PDF files
 const upload = multer({
     storage: storage,
     fileFilter: function (req, file, cb) {
@@ -26,8 +22,5 @@ const upload = multer({
     }
 });
 
-// Export the Multer instance
+//Export the Multer instance
 module.exports = upload.single("resume")
-
-
-

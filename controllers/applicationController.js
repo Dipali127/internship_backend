@@ -2,11 +2,13 @@ const studentModel = require('../models/studentModel');
 const internshipModel = require('../models/internshipModel');
 const applicationModel = require('../models/applicationModel');
 const validation = require('../validator/validation');
+const uploadFileOnCloudinary = require('../fileUpload/cloudinary');
+const fs = require('fs');
 
-//apply internship
+//apply internship:
 const applyInternship = async function (req, res) {
     try {
-        const studentId = req.params._id;
+        const studentId = req.params.studentID;
         if (!validation.checkObjectId(studentId)) {
             return res.status(400).send({ status: false, message: "Invalid studentId" });
         }
@@ -25,7 +27,7 @@ const applyInternship = async function (req, res) {
         //Fetch data from request body
         const data = req.body;
         console.log(data);
-        const {internshipId} = data;
+        const { internshipId } = data;
 
         //Validate request body data
         if (!validation.checkData(internshipId)) {
@@ -43,23 +45,32 @@ const applyInternship = async function (req, res) {
         }
 
         //Check if the student has already applied for this internship
-        const existingApplication = await applicationModel.findOne({ internshipId: internshipId });
+       // const existingApplication = await applicationModel.findOne({ studentId:studentId,internshipId: internshipId });
 
         // If the application of this internship already exists.
-        if (existingApplication) {
-            return res.status(400).send({ status: false, message: "You have already applied for this internship" });
-        }
+        // if (existingApplication) {
+        //     return res.status(400).send({ status: false, message: "You have already applied for this internship" });
+        // }
 
         //f a file was uploaded(req.file exists),resumePath will be assigned the path of the uploaded file(req.file.path).
         //multer uploaded file inside req.file property
-        const resumePath = req.file ? req.file.path : null;
-        //give all the information about uploaded file
-        console.log(req.file)
+        const resumePath = req.file.path;
+        console.log(req.file);
+
+        if (!resumePath) {
+            return res.status(400).send({ status: false, message: "Resume file is required" });
+        }
+
+        const cloudinaryResponse = await uploadFileOnCloudinary(resumePath);
+        if (!cloudinaryResponse) {
+            return res.status(500).send({ status: false, message: "Failed to upload resume to Cloudinary" });
+        }
+
         // Create the new application object
         const newApplication = {
             studentId: studentId,
             internshipId: internshipId,
-            resume: resumePath //assign the resume path
+            resume: cloudinaryResponse.url //assign the resume path
         };
 
         // Save data of application in database
@@ -71,11 +82,17 @@ const applyInternship = async function (req, res) {
 
     catch (error) {
         return res.status(503).send({ status: false, message: error.message });
+    } 
+    finally {
+        // Clean up the local file after processing
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
     }
 };
 
 //get all student details who has applied on particular internhsip
-const getAllAppliedStudents  = async function (req, res) {
+const getAllAppliedStudents = async function (req, res) {
     try {
         const internshipId = req.params.internshipId;
         if (!validation.checkObjectId(internshipId)) {
@@ -94,20 +111,20 @@ const getAllAppliedStudents  = async function (req, res) {
             return res.status(403).send({ status: false, message: "Unauthorized company" });
         }
 
-        const isExistinternship = await applicationModel.find({internshipId: internshipId });
+        const isExistinternship = await applicationModel.find({ internshipId: internshipId });
         if (!isExistinternship) {
-            return res.status(400).send({ status: false, message: "No applications found for this internship"})
+            return res.status(400).send({ status: false, message: "No applications found for this internship" })
         }
 
-        
+
         //response data
         const data = {
             internshipId: internshipId,
             totalApplications: isExistinternship.length,
             allStudentdetails: isExistinternship.map((student) => {
                 return {
-                    studentId:student.studentId,
-                    resumeDownloadLink: `${req.protocol}://${req.get('host')}/${student.resume}`
+                    studentId: student.studentId,
+                    resumeDownloadLink:  application.resume
                 };
             })
         }
@@ -122,4 +139,4 @@ const getAllAppliedStudents  = async function (req, res) {
     }
 }
 
-module.exports = { applyInternship, getAllAppliedStudents  };
+module.exports = { applyInternship, getAllAppliedStudents };
