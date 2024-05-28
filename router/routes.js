@@ -9,7 +9,7 @@ const uploadFile = require('../middleware/multer.middleware')
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>student>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register student
-router.post('/student/register', studentController.registerStudent);
+router.post('/student/signup', studentController.registerStudent);
 //login student
 router.post('/student/login', studentController.studentLogin);
 //update student details
@@ -20,7 +20,7 @@ router.get('/internships/list', jwt.authentication,internshipController.getInter
 router.post('/apply/:studentID',jwt.authentication,uploadFile,applicationController.applyInternship)
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>company>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register company
-router.post('/company/register', companyController.registerCompany)
+router.post('/company/signup', companyController.registerCompany)
 //login company
 router.post('/company/login', companyController.companyLogin);
 //company post internship
