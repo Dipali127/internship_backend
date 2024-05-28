@@ -9,7 +9,7 @@ const uploadFile = require('../middleware/multer.middleware')
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>student>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register student
-router.post('/register', studentController.registerStudent);
+router.post('/registerStudent', studentController.registerStudent);
 //login student
 router.post('/loginStudent', studentController.studentLogin);
 //update student details
