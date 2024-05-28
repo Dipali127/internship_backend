@@ -211,7 +211,7 @@ const editStudentdetails = async function (req, res) {
         //Save the edit student record in the database
         const updateDetails = await studentModel.findOneAndUpdate({ _id: studentId },
             additionalData, { new: true });
-        return res.status(200).send({ status: true, message: "Added additional data of student", data: updateDetails });
+        return res.status(200).send({ status: true, message: "Student details updated successfully", data: updateDetails });
 
     } catch (error) {
         return res.status(503).send({ status: false, message: error.message });

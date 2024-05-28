@@ -12,7 +12,7 @@ const uploadFile = require('../middleware/multer.middleware')
 router.post('/student/signup', studentController.registerStudent);
 //login student
 router.post('/student/login', studentController.studentLogin);
-//update student details
+//edit/update student details
 router.put('/update/:studentID', jwt.authentication,studentController.editStudentdetails)
 //get Internship
 router.get('/internships/list', jwt.authentication,internshipController.getInternship);
