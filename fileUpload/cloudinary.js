@@ -1,6 +1,9 @@
 //cloudinary code:
+require('dotenv').config({path: '../.env'})
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
+
+// Connects Cloudinary to the application using credentials from environment variables
 cloudinary.config({ 
     cloud_name: process.env.Cloudinary_Cloud_Name ,
     api_key: process.env.Cloudinary_Api_Key, 
@@ -14,16 +17,16 @@ const uploadFileOnCloudinary = async function(localFilePath){
         }
 
         const response = await cloudinary.uploader.upload(localFilePath, {
-            resource_type : "auto"  // Ensure non-image files like PDFs are correctly handled
+            resource_type : "auto"  
         })
-        //file has been uploaded successfully
+        //File has been uploaded successfully
         console.log(`file uploaded successfully ${response.url}`)
        
         return response;
 
     }catch(error){
         console.error(`Upload failed: ${error.message}`);
-        //reomve locally saved temporary file as the uploaded operation got failed
+        //Reomve locally saved temporary file as the uploaded operation got failed
         fs.unlinkSync(localFilePath);
         return null;
     }

@@ -1,16 +1,16 @@
 const multer = require('multer');
-//created multer instance with disk storage to upload files
+//Created multer instance with disk storage to upload files
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        return cb(null, './uploads') // null is custom error added by developer
+        return cb(null, './uploads') //null is custom error added by developer
     },
     filename: function (req, file, cb) {
-        cb(null, `${Date.now()}-${file.originalname}`); // Use a timestamp to avoid name conflicts
+        cb(null, `${Date.now()}-${file.originalname}`); //Use a timestamp to avoid name conflicts
     }
 
 })
 
-// //Configure Multer to accept only PDF files
+//Configure Multer to accept only PDF files
 const upload = multer({
     storage: storage,
     fileFilter: function (req, file, cb) {
