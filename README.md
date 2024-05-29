@@ -62,7 +62,7 @@ Before starting the application, ensure that you have set up the following:
 - **Environment Variables**: 
     - Create a new file named `.env` in the root directory of the project.
     - Set the following required environment variables in the `.env` file:
-        - `PORT`: Set this variable to the desired port number. By default, the application listens on port 3001.
+        - `PORT`: Set this variable to the desired port number. By default, the application listens on port 3000.
         - `DATABASE_CLUSTER_STRING`: Set the variable to the connection string for your MongoDB database cluster.
         - `secretKey`:  Set the variable to the secret key used for JWT authentication.
         - `cloudinary_credentials`: Set the CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET variables with your individual Cloudinary credentials for uploading files.
