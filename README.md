@@ -81,30 +81,39 @@ Before starting the application, ensure that you have set up the following:
 
 **Dependencies**
 * For dependencies refer Package.json
+### Available API Routes
 
-## Available API Routes
-The API routes for Students and Companies are implemented in a single file for simplicity. Below is a detailed description of each route and its functionality.
+To keep the project structure simple and easy to manage, all the routes have been written in a single file.
 
 #### Student Routes
 
 | Routes                      | Description                                |
 | --------------------------- | ------------------------------------------ |
-| `POST/student/signup`       | Sign up a new student                      |
-| `POST/student/login`        | Login a student                            |
-| `PUT/update/:studentID`     | Update a particular student's details      |
-| `GET/internships/list`      | Get list of all internships                |
-| `POST/apply/:studentID`     | Student apply on an internship             |
+| `POST /student/signup`      | Sign up a new student                      |
+| `POST /student/login`       | Login a student                            |
+| `PUT /update/:studentID`    | Update a particular student's details      |
 
 #### Company Routes
 
-| Routes                               | Description                            |
-| ------------------------------------ | -------------------------------------- |
-| `POST/company/signup`                | Sign up a new company                  |
-| `POST/company/login`                 | Login a company                        |
-| `POST/postInternship/:companyId`     | Company post an internship             |
-| `PUT/updateInternship/:internshipId` | Company update an internship           |
-| `GET/getAllAppliedStudents/:internshipId` | Get all applied student's applications |
+| Routes                      | Description                                |
+| --------------------------- | ------------------------------------------ |
+| `POST /company/signup`      | Sign up a new company                      |
+| `POST /company/login`       | Login a company                            |
 
+#### Internship Routes
+
+| Routes                                | Description                            |
+| ------------------------------------- | -------------------------------------- |
+| `POST /postInternship/:companyId`     | Company posts an internship            |
+| `PUT /updateInternship/:internshipId` | Company updates an internship          |
+| `GET /internships/list`               | Student gets list of all internships   |
+
+#### Application Routes
+
+| Routes                                        | Description                                 |
+| --------------------------------------------- | ------------------------------------------- |
+| `POST /apply/:studentID`                      | Student applies for an internship           |
+| `GET /getAllAppliedStudents/:internshipId`    | Company gets all applied students' applications |
 
 ## Student Routes
 **1) Sign up a new Student**
@@ -138,7 +147,7 @@ Produces: application/json
 ```
 **2) Login Student**
 
-Sends a POST request to login an exisiting student.
+Send a POST request to login an exisiting student.
 
 ````
 Method: POST 
@@ -158,7 +167,7 @@ Produces: application/json
 ```
 **3) Update student details**
 
-Sends a PUT request to update an exisiting student's detail.
+Send a PUT request to update an exisiting student's detail.
 
 Student must be logged in to update his/her details.
 
@@ -195,7 +204,155 @@ Produces: application/json
 }
 ```
 
-**4) Get list of all internship**
+## Company Routes
+**1) Sign up a new Company**
+
+Send a POST request to create a new student account.
+
+````
+Method: POST 
+URL: /company/signup
+Produces: application/json
+````
+
+**EXAMPLE**
+* **Request:** POST /company/signup
+* **Response:**
+```json
+     {
+    "status": true,
+    "message": "Company registered successfully",
+    "companyData": {
+        "companyName": "Microsoft",
+        "companyEmail": "mic221@gmail.com",
+        "password": "$2b$10$FaXrMndfyrrHEZHuMsuHVO2vPhptvXzoOr7ifAOKec./AecxGnKqS",
+        "contactNumber": "7768435678",
+        "_id": "6655fc7c77768eee4437744d",
+        "createdAt": "2024-05-28T15:47:08.300Z",
+        "updatedAt": "2024-05-28T15:47:08.300Z",
+        "__v": 0
+    }
+}
+```
+**2) Login Company**
+
+Send a POST request to login an exisiting company.
+
+````
+Method: POST 
+URL: /company/login
+Produces: application/json
+````
+
+**EXAMPLE**
+* **Request:** POST /company/login
+* **Response:**
+```json
+   {
+    "status": true,
+    "message": "Company login successfully",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SUQiOiI2NjU1ZmM3Yzc3NzY4ZWVlNDQzNzc0NGQiLCJ1c2VyIjoiY29tcGFueSIsImlhdCI6MTcxNjkxMTI0MiwiZXhwIjoxNzE2OTE0ODQyfQ.mWkUW1hDG1vXoSEBG-wmaPrevc_yxCQfgxxzGTRxzdw"
+}
+```
+
+
+## Internship Routes
+**1) Post an Internship**
+
+Send a POST request to post an internship by a company.
+
+The company must be logged in to post an internship.
+
+````
+Method: POST 
+URL: /postInternship/:companyId
+Authorization:{token}
+Produces: application/json
+````
+
+**EXAMPLE**
+* **Request:** POST /postInternship/6655fc7c77768eee4437744d
+* **Response:**
+```json
+   {
+    "status": true,
+    "message": "Internship successfully posted",
+    "data": {
+        "companyId": {
+            "_id": "6655fc7c77768eee4437744d",
+            "companyName": "Microsoft",
+            "companyEmail": "mic221@gmail.com",
+            "password": "$2b$10$FaXrMndfyrrHEZHuMsuHVO2vPhptvXzoOr7ifAOKec./AecxGnKqS",
+            "contactNumber": "7768435678",
+            "createdAt": "2024-05-28T15:47:08.300Z",
+            "updatedAt": "2024-05-28T15:47:08.300Z",
+            "__v": 0
+        },
+        "category": "Web Development",
+        "position": "PhP Developer",
+        "internshipType": "wfo",
+        "skillsRequired": "Experience with PHP frameworks such as Laravel, Symfony, or CodeIgniter",
+        "eligibility": "B.Tech,BCA,BSC(Computer Science)",
+        "duration": "6 months",
+        "location": {
+            "state": "Delhi",
+            "city": "New Delhi"
+        },
+        "applicationDeadline": "2024-07-08T07:00:00.000Z",
+        "numberOfOpenings": 15,
+        "stipend": "25000-30000",
+        "status": "active",
+        "_id": "6655fd3977768eee44377452",
+        "createdAt": "2024-05-28T15:50:17.324Z",
+        "updatedAt": "2024-05-28T15:50:17.324Z",
+        "__v": 0
+    }
+}
+```
+**2) Update an internship**
+
+Send a PUT request to update an existing internship.
+
+The company must be logged in to update an existing internship.
+
+````
+Method: PUT 
+URL: /updateInternship/:internshipId
+Authorization:{token}
+Produces: application/json
+````
+
+**EXAMPLE**
+* **Request:** PUT /updateInternship/6655fd3977768eee44377452
+* **Response:**
+```json
+   {
+    "status": true,
+    "message": "Status updated succesfully",
+    "data": {
+        "location": {
+            "state": "Delhi",
+            "city": "New Delhi"
+        },
+        "_id": "6655fd3977768eee44377452",
+        "companyId": "6655fc7c77768eee4437744d",
+        "category": "Web Development",
+        "position": "PhP Developer",
+        "internshipType": "wfo",
+        "skillsRequired": "Experience with PHP frameworks such as Laravel, Symfony, or CodeIgniter",
+        "eligibility": "B.Tech,BCA,BSC(Computer Science)",
+        "duration": "4-6 months",
+        "applicationDeadline": "2024-07-08T07:00:00.000Z",
+        "numberOfOpenings": 15,
+        "stipend": "25000-30000",
+        "status": "active",
+        "createdAt": "2024-05-28T15:50:17.324Z",
+        "updatedAt": "2024-05-28T16:56:52.886Z",
+        "__v": 0
+    }
+}
+```
+**3) Get list of all internship**
 
 Send a GET request to retrieve the list of all available internships. Optionally, you can include query parameters to filter the results based on specific criteria.
 
@@ -298,9 +455,10 @@ Produces: application/json
     ]
 }
 ```
-**5) Apply on Internship**
+## Application Routes
+**1) Apply on Internship**
 
-Sends a POST request to apply for an internship.
+Send a POST request to apply for an internship.
 
 The student must be logged in to apply for an internship.
 
@@ -331,152 +489,7 @@ Produces: application/json
     }
 }
 ```
-## Company Routes
-**1) Sign up a new Company**
-
-Send a POST request to create a new student account.
-
-````
-Method: POST 
-URL: /company/signup
-Produces: application/json
-````
-
-**EXAMPLE**
-* **Request:** POST /company/signup
-* **Response:**
-```json
-     {
-    "status": true,
-    "message": "Company registered successfully",
-    "companyData": {
-        "companyName": "Microsoft",
-        "companyEmail": "mic221@gmail.com",
-        "password": "$2b$10$FaXrMndfyrrHEZHuMsuHVO2vPhptvXzoOr7ifAOKec./AecxGnKqS",
-        "contactNumber": "7768435678",
-        "_id": "6655fc7c77768eee4437744d",
-        "createdAt": "2024-05-28T15:47:08.300Z",
-        "updatedAt": "2024-05-28T15:47:08.300Z",
-        "__v": 0
-    }
-}
-```
-**2) Login Student**
-
-Send a POST request to login an exisiting company.
-
-````
-Method: POST 
-URL: /company/login
-Produces: application/json
-````
-
-**EXAMPLE**
-* **Request:** POST /company/login
-* **Response:**
-```json
-   {
-    "status": true,
-    "message": "Company login successfully",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55SUQiOiI2NjU1ZmM3Yzc3NzY4ZWVlNDQzNzc0NGQiLCJ1c2VyIjoiY29tcGFueSIsImlhdCI6MTcxNjkxMTI0MiwiZXhwIjoxNzE2OTE0ODQyfQ.mWkUW1hDG1vXoSEBG-wmaPrevc_yxCQfgxxzGTRxzdw"
-}
-```
-**3) Post an Internship**
-
-Send a POST request to post an internship by a company.
-
-The company must be logged in to post an internship.
-
-````
-Method: POST 
-URL: /postInternship/:companyId
-Authorization:{token}
-Produces: application/json
-````
-
-**EXAMPLE**
-* **Request:** POST /postInternship/6655fc7c77768eee4437744d
-* **Response:**
-```json
-   {
-    "status": true,
-    "message": "Internship successfully posted",
-    "data": {
-        "companyId": {
-            "_id": "6655fc7c77768eee4437744d",
-            "companyName": "Microsoft",
-            "companyEmail": "mic221@gmail.com",
-            "password": "$2b$10$FaXrMndfyrrHEZHuMsuHVO2vPhptvXzoOr7ifAOKec./AecxGnKqS",
-            "contactNumber": "7768435678",
-            "createdAt": "2024-05-28T15:47:08.300Z",
-            "updatedAt": "2024-05-28T15:47:08.300Z",
-            "__v": 0
-        },
-        "category": "Web Development",
-        "position": "PhP Developer",
-        "internshipType": "wfo",
-        "skillsRequired": "Experience with PHP frameworks such as Laravel, Symfony, or CodeIgniter",
-        "eligibility": "B.Tech,BCA,BSC(Computer Science)",
-        "duration": "6 months",
-        "location": {
-            "state": "Delhi",
-            "city": "New Delhi"
-        },
-        "applicationDeadline": "2024-07-08T07:00:00.000Z",
-        "numberOfOpenings": 15,
-        "stipend": "25000-30000",
-        "status": "active",
-        "_id": "6655fd3977768eee44377452",
-        "createdAt": "2024-05-28T15:50:17.324Z",
-        "updatedAt": "2024-05-28T15:50:17.324Z",
-        "__v": 0
-    }
-}
-```
-**4)Update an internship**
-
-Send a PUT request to update an exisiting internship.
-
-The company must be logged in to update an existing internship.
-
-````
-Method: PUT 
-URL: /updateInternship/:internshipId
-Authorization:{token}
-Produces: application/json
-````
-
-**EXAMPLE**
-* **Request:** PUT /updateInternship/6655fd3977768eee44377452
-* **Response:**
-```json
-   {
-    "status": true,
-    "message": "Status updated succesfully",
-    "data": {
-        "location": {
-            "state": "Delhi",
-            "city": "New Delhi"
-        },
-        "_id": "6655fd3977768eee44377452",
-        "companyId": "6655fc7c77768eee4437744d",
-        "category": "Web Development",
-        "position": "PhP Developer",
-        "internshipType": "wfo",
-        "skillsRequired": "Experience with PHP frameworks such as Laravel, Symfony, or CodeIgniter",
-        "eligibility": "B.Tech,BCA,BSC(Computer Science)",
-        "duration": "4-6 months",
-        "applicationDeadline": "2024-07-08T07:00:00.000Z",
-        "numberOfOpenings": 15,
-        "stipend": "25000-30000",
-        "status": "active",
-        "createdAt": "2024-05-28T15:50:17.324Z",
-        "updatedAt": "2024-05-28T16:56:52.886Z",
-        "__v": 0
-    }
-}
-```
-**5)Get all applied student's applications**
+**2) Get all applied student's applications**
 
 Send a GET request to fetch a list of applications for a specific internship.
 
