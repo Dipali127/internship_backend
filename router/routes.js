@@ -7,27 +7,32 @@ const applicationController = require('../controllers/applicationController');
 const jwt = require('../middleware/auth')
 const uploadFile = require('../middleware/multer.middleware')
 
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>student>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
-//register student
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Student Routes>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+//Register student
 router.post('/student/signup', studentController.registerStudent);
-//login student
+//Login student
 router.post('/student/login', studentController.studentLogin);
-//edit/update student details
+//Edit/update student details
 router.put('/update/:studentID', jwt.authentication,studentController.editStudentdetails)
-//get Internship
-router.get('/internships/list', jwt.authentication,internshipController.getInternship);
-//apply to internship
-router.post('/apply/:studentID',jwt.authentication,uploadFile,applicationController.applyInternship)
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>company>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
-//register company
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Company Routes>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+//Register company
 router.post('/company/signup', companyController.registerCompany)
-//login company
+//Login company
 router.post('/company/login', companyController.companyLogin);
-//company post internship
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Internship Routes>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+//Company post an internship
 router.post('/postInternship/:companyId', jwt.authentication,internshipController.postInternship);
-//update internship
+//Company update an internship
 router.put('/updateInternship/:internshipId', jwt.authentication, internshipController.updateInternship);
-//get application review
+//Student gets all Internship
+router.get('/internships/list', jwt.authentication,internshipController.getInternship);
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Application Routes>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+//Student apply for an internship
+router.post('/apply/:studentID',jwt.authentication,uploadFile,applicationController.applyInternship)
+//Company gets all applied student's application
 router.get('/getAllAppliedStudents/:internshipId', jwt.authentication, applicationController.getAllAppliedStudents )
 
 //route to handle endpoint 

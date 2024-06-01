@@ -111,6 +111,11 @@ const postInternship = async function (req, res) {
         if (isNaN(minimumStipend) || isNaN(maximumStipend)) {
             return res.status(400).send({ status: false, message: "Invalid stipend format" });
         }
+        
+        // Check if status is provided and validate it only if it is sent by company
+        if (status && !["active", "closed"].includes(status)) {
+            return res.status(400).send({ status: false, message: "Invalid status value" });
+        }
 
         //structure of internship show in database
         const newInternship = {
@@ -172,10 +177,7 @@ const updateInternship = async function (req, res) {
         if (internshipType && !["remote", "wfh", "wfo"].includes(internshipType)) {
             return res.status(400).send({ status: false, message: "Invalid internshipType value" })
         }
-        if (duration && !validation.validateInput(duration)) {
-            return res.status(400).send({ status: false, message: "Invalid duration" });
-        }
-
+        
         const updatedField = {
             status,
             internshipType,
